@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Trust Region Policy Optimization (TRPO) — Anthony Roumi" />
+  <title>Trust Region Policy Optimization (TRPO) — Anthony Roumi</title>
+
+  <link rel="stylesheet" href="../style.css" />
+  <script src="../theme.js"></script>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script
+    id="MathJax-script"
+    async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="advanced-policy-gradient-methods.html">Advanced Policy Gradient Methods</a>
+
+    <header class="project-header">
+      <h1>Trust Region Policy Optimization (TRPO)</h1>
+    </header>
+
+    <section>
+      <h2>Overview</h2>
+
+      <p>
+        Trust Region Policy Optimization (TRPO) addresses the central weakness of vanilla policy
+        gradients: a gradient points toward local improvement, but an ordinary parameter-space step
+        gives no principled guarantee that the represented policy distribution changes only a small
+        amount.
+      </p>
+
+      <p>
+        TRPO keeps the local policy-improvement objective, but constrains the update using KL
+        divergence so that the new policy remains inside a trusted neighborhood of the old one.
+      </p>
+    </section>
+
+    <section>
+      <h2>The Constrained Optimization Problem</h2>
+
+      <p>
+        Let \(\theta_{\mathrm{old}}\) denote the parameters that generated the current batch, and let
+        \(\theta\) denote a candidate new policy. TRPO optimizes the importance-sampled surrogate
+        objective while constraining the average KL divergence:
+      </p>
+
+      <div class="equation">
+        \[
+        \max_\theta
+        \quad
+        L_{\theta_{\mathrm{old}}}^{\mathrm{IS}}(\theta)
+        \qquad
+        \text{subject to}
+        \qquad
+        \bar D_{\mathrm{KL}}
+        \left(
+          \pi_{\theta_{\mathrm{old}}}
+          \,\middle\|\,
+          \pi_\theta
+        \right)
+        \le
+        \delta.
+        \]
+      </div>
+
+      <p>
+        Define the parameter displacement
+      </p>
+
+      <div class="equation">
+        \[
+        \Delta\theta
+        =
+        \theta-\theta_{\mathrm{old}}.
+        \]
+      </div>
+
+      <p>
+        TRPO then replaces the original nonlinear constrained problem with a local approximation
+        around \(\theta_{\mathrm{old}}\).
+      </p>
+    </section>
+
+    <section>
+      <h2>Local Approximation</h2>
+
+      <p>
+        Around the current policy, approximate the objective to first order:
+      </p>
+
+      <div class="equation">
+        \[
+        L(\theta_{\mathrm{old}}+\Delta\theta)
+        \approx
+        L(\theta_{\mathrm{old}})
+        +
+        g^\top \Delta\theta,
+        \]
+      </div>
+
+      <p>
+        where
+      </p>
+
+      <div class="equation">
+        \[
+        g
+        =
+        \nabla_\theta
+        L_{\theta_{\mathrm{old}}}^{\mathrm{IS}}(\theta)
+        \bigg|_{\theta=\theta_{\mathrm{old}}}.
+        \]
+      </div>
+
+      <p>
+        The constant \(L(\theta_{\mathrm{old}})\) does not affect which update maximizes the local
+        objective, so we keep only
+      </p>
+
+      <div class="equation">
+        \[
+        g^\top\Delta\theta.
+        \]
+      </div>
+
+      <p>
+        This term is the first-order predicted improvement in the surrogate objective.
+      </p>
+    </section>
+
+    <section>
+      <h2>Second-Order KL Constraint</h2>
+
+      <p>
+        The KL divergence is locally quadratic:
+      </p>
+
+      <div class="equation">
+        \[
+        \bar D_{\mathrm{KL}}
+        \left(
+          \pi_{\theta_{\mathrm{old}}}
+          \,\middle\|\,
+          \pi_{\theta_{\mathrm{old}}+\Delta\theta}
+        \right)
+        \approx
+        \frac{1}{2}
+        \Delta\theta^\top
+        F
+        \Delta\theta,
+        \]
+      </div>
+
+      <p>
+        where \(F\) is the Fisher information matrix evaluated at the old policy.
+      </p>
+
+      <p>
+        Therefore, the local TRPO problem becomes
+      </p>
+
+      <div class="equation">
+        \[
+        \boxed{
+        \max_{\Delta\theta}
+        \quad
+        g^\top\Delta\theta
+        \qquad
+        \text{subject to}
+        \qquad
+        \frac{1}{2}
+        \Delta\theta^\top
+        F
+        \Delta\theta
+        \le
+        \delta
+        }.
+        \]
+      </div>
+    </section>
+
+    <section>
+      <h2>Why the Solution Points Along the Natural Gradient</h2>
+
+      <p>
+        The ordinary gradient \(g\) tells us which direction improves the surrogate fastest per unit
+        of Euclidean parameter movement.
+      </p>
+
+      <p>
+        TRPO instead asks:
+      </p>
+
+      <blockquote>
+        Which parameter change improves the surrogate fastest while changing the policy distribution
+        by only a small amount?
+      </blockquote>
+
+      <p>
+        The constrained solution has direction
+      </p>
+
+      <div class="equation">
+        \[
+        \Delta\theta
+        \propto
+        F^{-1}g.
+        \]
+      </div>
+
+      <p>
+        This is the <strong>natural-gradient direction</strong>.
+      </p>
+
+      <p>
+        Multiplying by \(F^{-1}\) reshapes the raw gradient according to the local geometry of
+        probability distributions:
+      </p>
+
+      <ul>
+        <li>
+          it suppresses movement in directions where a small parameter change would strongly alter
+          the policy distribution;
+        </li>
+        <li>
+          it allows more movement in directions where parameter changes have weak distributional
+          effect.
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Solving for the Step Size</h2>
+
+      <p>
+        Let
+      </p>
+
+      <div class="equation">
+        \[
+        v
+        =
+        F^{-1}g.
+        \]
+      </div>
+
+      <p>
+        Write the update as
+      </p>
+
+      <div class="equation">
+        \[
+        \Delta\theta
+        =
+        \alpha v.
+        \]
+      </div>
+
+      <p>
+        Enforcing the quadratic KL boundary gives
+      </p>
+
+      <div class="equation">
+        \[
+        \frac{1}{2}
+        \alpha^2
+        v^\top
+        F
+        v
+        =
+        \delta.
+        \]
+      </div>
+
+      <p>
+        Since \(v=F^{-1}g\),
+      </p>
+
+      <div class="equation">
+        \[
+        v^\top F v
+        =
+        g^\top F^{-1}g.
+        \]
+      </div>
+
+      <p>
+        Therefore,
+      </p>
+
+      <div class="equation">
+        \[
+        \alpha
+        =
+        \sqrt{
+          \frac{
+            2\delta
+          }{
+            g^\top F^{-1}g
+          }
+        }.
+        \]
+      </div>
+
+      <p>
+        The local TRPO step is consequently
+      </p>
+
+      <div class="equation">
+        \[
+        \boxed{
+        \Delta\theta_{\mathrm{TRPO}}
+        =
+        \sqrt{
+          \frac{
+            2\delta
+          }{
+            g^\top F^{-1}g
+          }
+        }
+        F^{-1}g
+        }.
+        \]
+      </div>
+    </section>
+
+    <section>
+      <h2>Why We Do Not Form \(F^{-1}\) Explicitly</h2>
+
+      <p>
+        In a neural network, \(F\) can contain millions of rows and columns. Constructing it
+        explicitly is expensive; inverting it directly is worse.
+      </p>
+
+      <p>
+        TRPO therefore does not compute \(F^{-1}\). Instead, it solves the linear system
+      </p>
+
+      <div class="equation">
+        \[
+        Fv
+        =
+        g
+      \]
+      </div>
+
+      <p>
+        approximately using <strong>conjugate gradient</strong>.
+      </p>
+
+      <p>
+        The crucial computational trick is that conjugate gradient only needs products of the form
+      </p>
+
+      <div class="equation">
+        \[
+        Fv,
+        \]
+      </div>
+
+      <p>
+        not the full matrix \(F\). These Fisher-vector products can be computed efficiently through
+        automatic differentiation using the Hessian-vector product of the KL divergence.
+      </p>
+    </section>
+
+    <section>
+      <h2>Conjugate Gradient</h2>
+
+      <p>
+        Conjugate gradient is an iterative method for approximately solving
+      </p>
+
+      <div class="equation">
+        \[
+        Fv=g
+      \]
+      </div>
+
+      <p>
+        when \(F\) is symmetric positive semidefinite. This is exactly the structure provided by the
+        Fisher information matrix.
+      </p>
+
+      <p>
+        It efficiently produces the direction \(v\approx F^{-1}g\) without explicitly computing the
+        inverse.
+      </p>
+    </section>
+
+    <section>
+      <h2>Why the Natural Gradient Is Different from the Raw Gradient</h2>
+
+      <p>
+        The raw gradient \(g\) is generally not the direction that gives the best improvement per
+        unit of policy change. It only answers the Euclidean question:
+      </p>
+
+      <div class="equation">
+        \[
+        \text{Which direction increases the objective fastest per unit of }
+        \|\Delta\theta\|_2?
+        \]
+      </div>
+
+      <p>
+        The natural gradient answers the distributional question:
+      </p>
+
+      <div class="equation">
+        \[
+        \text{Which direction improves the objective fastest per unit of local KL change?}
+        \]
+      </div>
+
+      <p>
+        Since \(F\) measures how sensitive the policy distribution is to each parameter direction,
+        the transformation
+      </p>
+
+      <div class="equation">
+        \[
+        F^{-1}g
+        \]
+      </div>
+
+      <p>
+        rescales the raw gradient according to the geometry of policy space.
+      </p>
+    </section>
+
+    <section>
+      <h2>Line Search</h2>
+
+      <p>
+        The derivation above uses local first- and second-order approximations. Those approximations
+        are only reliable near \(\theta_{\mathrm{old}}\).
+      </p>
+
+      <p>
+        TRPO therefore commonly performs a backtracking line search along the candidate natural-gradient
+        direction. Starting from the proposed step, it repeatedly shrinks the update until the actual
+        policy satisfies the KL constraint and achieves sufficient surrogate improvement.
+      </p>
+
+      <div class="equation">
+        \[
+        \theta_{\mathrm{new}}
+        =
+        \theta_{\mathrm{old}}
+        +
+        \beta^j
+        \Delta\theta_{\mathrm{TRPO}},
+        \qquad
+        0<\beta<1.
+        \]
+      </div>
+
+      <p>
+        This converts the local approximation into a practical algorithm with an explicit check on
+        the realized policy change.
+      </p>
+    </section>
+
+    <section>
+      <h2>Putting It Together</h2>
+
+      <p>
+        TRPO can be understood as the following sequence:
+      </p>
+
+      <ol>
+        <li>collect trajectories using \(\pi_{\theta_{\mathrm{old}}}\);</li>
+        <li>estimate advantages \(\hat A_t\);</li>
+        <li>compute the surrogate gradient \(g\);</li>
+        <li>compute Fisher-vector products from the KL divergence;</li>
+        <li>use conjugate gradient to approximately solve \(Fv=g\);</li>
+        <li>scale the direction so the predicted KL change is at most \(\delta\);</li>
+        <li>perform a backtracking line search and accept a step satisfying the trust region.</li>
+      </ol>
+
+      <p>
+        The result is a policy update that follows the local improvement direction while explicitly
+        respecting the geometry of the policy distribution.
+      </p>
+    </section>
+
+    <section>
+      <h2>Connection to PPO</h2>
+
+      <p>
+        TRPO solves a constrained optimization problem directly. PPO keeps the same underlying idea
+        but replaces the hard trust-region machinery with a simpler first-order objective that
+        discourages the policy ratio from moving too far.
+      </p>
+
+      <p>
+        In that sense, PPO can be viewed as a practical approximation to the trust-region principle
+        developed here. Continue to <a href="proximal-policy-optimization.html">Proximal Policy Optimization</a> for the
+        penalty and clipping formulations.
+      </p>
+    </section>
+
+    <section>
+      <h2>Next: Proximal Policy Optimization</h2>
+      <p>
+        Continue to <a href="proximal-policy-optimization.html">Proximal Policy Optimization</a> to see how the trust-region
+        idea is turned into the KL-penalty and clipped-surrogate objectives.
+      </p>
+    </section>
+
+    <footer>
+      <span>&copy; <span id="year"></span> Anthony Roumi.</span>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

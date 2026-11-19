@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Humanoid Motion Learning Framework — Anthony Roumi" />
+  <title>Humanoid Motion Learning Framework — Anthony Roumi</title>
+  <link rel="stylesheet" href="../style.css" />
+  <script src="../theme.js"></script>
+  <style>
+    hr { margin-bottom: 34px; }
+    h2 { margin-top: 46px; }
+    h3 { margin: 28px 0 6px; font-size: 1.03rem; line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="../index.html">Anthony Roumi</a>
+
+    <header class="project-header">
+      <h1>Learning Stylistic Humanoid Motions</h1>
+      <p class="meta">Reinforcement Learning &middot; Imitation Learning</p>
+      <p class="entry-links">
+        <a href="https://github.com/tonyroumi/move-it-move-it">Code</a> /
+        <a href="../notes/index.html">Notes</a>
+      </p>
+    </header>
+    <hr />
+
+    <section class="project-overview" id="overview">
+      <p>
+        This project explores learning to compose stylistic humanoid motions through reinforcement learning, drawing on ideas from
+        <a href="https://arxiv.org/abs/2104.02180" target="_blank" rel="noopener noreferrer">Adversarial Motion Priors</a>
+        and
+        <a href="https://arxiv.org/abs/1804.02717" target="_blank" rel="noopener noreferrer">DeepMimic</a>.
+        The goal is to learn task-driven behaviors guided by reference motions, while enabling transitions between learned skills.
+      </p>
+    </section>
+
+    <section class="project-demo" id="video">
+      <div class="demo-heading">
+        <h3>Locomotion with Standing</h3>
+      </div>
+
+      <div class="hero-comparison">
+        <div class="hero-panel">
+          <video src="../assets/humanoid_walk_hero.mp4" autoplay muted loop playsinline></video>
+          <span class="hero-label">Learned Policy</span>
+        </div>
+        <div class="hero-panel">
+          <video src="../assets/walk.mp4" autoplay muted loop playsinline></video>
+          <span class="hero-label">Reference Motion</span>
+        </div>
+      </div>
+    </section>
+
+    <h2 id="framework">Overview</h2>
+    <p>
+      A manifest defines which motion clips to sample from and their respective environment configuration.
+    </p>
+    <pre><code>motions:
+  walk_to_goal:
+    file: data/locomotion/walk.npz
+    sample_prob: 0.55
+    amp: 2.0
+
+    commands:
+      goal_x: [-5.0, 5.0]
+      goal_y: [-5.0, 5.0]
+
+    zero_command_prob: 0.25
+
+    rewards:
+      progress:
+        weight: 3.0
+        scale: 30.0
+      target_hit:
+        weight: 1.0
+        scale: 0.5
+
+    termination:
+      unhealthy:
+
+  jump:
+    file: data/jump/standing_broad_jump.npz
+    sample_prob: 0.35
+    trigger: binary_key_0
+    amp: 0.0
+    random_start: true
+
+    rewards:
+      heading_motion_tracking:
+        weight: 20.0
+        dof_scale: 0.5
+        key_body_scale: 0.5
+      action_rate_l2:
+        weight: 0.5
+        scale: 1.0
+      joint_acc:
+        weight: 0.1
+        scale: 1.0e-4
+
+    termination:
+      unhealthy:
+      deviation_from_motion:
+        threshold: 3.0</code></pre>
+    <br />
+    <p>
+      The environment then produces motion specific <b>commands</b>, <b>triggers</b>, <b>rewards</b>, and <b>terminations</b>.
+    </p>
+    <p>
+      Episodes can initialize from any reference motion, execute triggers mid-episode, and transition back to steady-state behavior.
+    </p>
+
+    <h2 id="experiments">Experiments</h2>
+    <p>
+      The exact configurations can be found <a href="https://github.com/tonyroumi/move-it-move-it/tree/refactor/configs">here</a>.
+    </p>
+
+    <h3>Locomotion with Two Dance Moves</h3>
+    <div class="hero-comparison refs-3">
+      <div class="hero-panel">
+        <video src="../assets/humanoid_dance.mp4" autoplay muted loop playsinline></video>
+        <span class="hero-label">Learned Policy</span>
+      </div>
+      <div class="hero-refs">
+        <div class="hero-panel">
+          <video src="../assets/walk.mp4" autoplay muted loop playsinline></video>
+          <span class="hero-label">Walk</span>
+        </div>
+        <div class="hero-panel">
+          <video src="../assets/disco_crop.mp4" autoplay muted loop playsinline></video>
+          <span class="hero-label">Disco</span>
+        </div>
+        <div class="hero-panel">
+          <video src="../assets/step_touch.mp4" autoplay muted loop playsinline></video>
+          <span class="hero-label">Step Touch</span>
+        </div>
+      </div>
+    </div>
+
+    <br />
+
+    <h3>Locomotion with Jump</h3>
+    <div class="hero-comparison refs-2">
+      <div class="hero-panel">
+        <video src="../assets/humanoid_jump.mp4" autoplay muted loop playsinline></video>
+        <span class="hero-label">Learned Policy</span>
+      </div>
+      <div class="hero-refs">
+        <div class="hero-panel">
+          <video src="../assets/walk.mp4" autoplay muted loop playsinline></video>
+          <span class="hero-label">Walk</span>
+        </div>
+        <div class="hero-panel">
+          <video src="../assets/jump.mp4" autoplay muted loop playsinline></video>
+          <span class="hero-label">Jump</span>
+        </div>
+      </div>
+    </div>
+
+    <h2 id="notes">Notes</h2>
+    <p>
+      My notes on the foundations of reinforcement learning and the ideas behind this framework can be found <a href="../notes/index.html">here</a>.
+    </p>
+
+    <footer>
+      <span>&copy; <span id="year"></span> Anthony Roumi.</span>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

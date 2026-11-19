@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="The Gradient — Anthony Roumi" />
+  <title>The Gradient — Anthony Roumi</title>
+
+  <link rel="stylesheet" href="../style.css" />
+  <script src="../theme.js"></script>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script
+    id="MathJax-script"
+    async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="./index.html">Notes</a>
+
+    <header class="project-header">
+      <h1>The Gradient</h1>
+    </header>
+
+    <section>
+      <h2>Definition</h2>
+
+      <p>
+        For a scalar-valued function of several variables,
+      </p>
+
+      <div class="equation">
+        \[
+        f(x_1,\ldots,x_n),
+        \]
+      </div>
+
+      <p>
+        the gradient is the vector of partial derivatives:
+      </p>
+
+      <div class="equation">
+        \[
+        \nabla f
+        =
+        \begin{bmatrix}
+        \frac{\partial f}{\partial x_1}\\
+        \frac{\partial f}{\partial x_2}\\
+        \vdots\\
+        \frac{\partial f}{\partial x_n}
+        \end{bmatrix}.
+        \]
+      </div>
+
+      <p>
+        If \(f:\mathbb{R}^n\rightarrow\mathbb{R}\), then
+        \(\nabla f:\mathbb{R}^n\rightarrow\mathbb{R}^n\): at every input point,
+        the gradient produces a vector in the same input space.
+      </p>
+    </section>
+
+    <section>
+      <h2>Interpretation</h2>
+
+      <p>
+        The gradient collects the local rates of change of the function in each coordinate direction.
+        Its key properties are:
+      </p>
+
+      <ul>
+        <li><strong>Direction:</strong> \(\nabla f\) points in the direction of steepest local increase.</li>
+        <li><strong>Magnitude:</strong> \(\|\nabla f\|\) gives the local rate of increase in that direction.</li>
+        <li><strong>Orthogonality:</strong> the gradient is perpendicular to level sets of \(f\).</li>
+        <li><strong>Zero gradient:</strong> \(\nabla f=0\) marks a critical point.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Linear Response</h2>
+
+      <p>
+        For a small displacement \(h\), the first-order change in the function is
+      </p>
+
+      <div class="equation">
+        \[
+        \Delta f
+        \approx
+        \nabla f(x_0)^\top h.
+        \]
+      </div>
+
+      <p>
+        This dot product combines the local rate of change in each coordinate with how far we move in
+        that coordinate. In the Taylor expansion,
+      </p>
+
+      <div class="equation">
+        \[
+        f(x_0+h)
+        \approx
+        f(x_0)
+        +
+        \nabla f(x_0)^\top h.
+        \]
+      </div>
+    </section>
+
+    <section>
+      <h2>Example</h2>
+
+      <p>
+        For
+      </p>
+
+      <div class="equation">
+        \[
+        f(x,y)=x^2+y^2,
+        \]
+      </div>
+
+      <p>
+        the gradient is
+      </p>
+
+      <div class="equation">
+        \[
+        \nabla f(x,y)
+        =
+        \begin{bmatrix}
+        2x\\
+        2y
+        \end{bmatrix}.
+        \]
+      </div>
+
+      <p>
+        The resulting vector field points radially away from the origin, which matches the fact that
+        \(x^2+y^2\) increases fastest by moving directly away from the origin.
+      </p>
+    </section>
+
+    <footer>
+      <span>&copy; <span id="year"></span> Anthony Roumi.</span>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Generalizable Motion Retargeting Using Deep Skeletal Networks — Anthony Roumi" />
+  <title>Generalizable Motion Retargeting Using Deep Skeletal Networks — Anthony Roumi</title>
+  <link rel="stylesheet" href="../style.css" />
+  <script src="../theme.js"></script>
+  <style>
+    hr { margin-bottom: 34px; }
+    h2 { margin-top: 46px; }
+    .media { width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+    .media img { display: block; width: 100%; height: 100%; object-fit: contain; }
+    .caption { margin: 8px 0 22px; color: var(--muted); font-size: 0.88rem; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="../index.html">Anthony Roumi</a>
+
+    <header class="project-header">
+      <h1>Generalizable Motion Retargeting Using Deep Skeletal Networks</h1>
+      <p class="meta">Imitation Learning &middot; Motion Representation</p>
+      <p class="entry-links">
+        <a href="https://github.com/tonyroumi/motion-retargeting">Code</a>
+      </p>
+    </header>
+    <hr />
+
+    <div class="media" id="video">
+      <img src="../assets/group_b_to_group_a.gif" alt="Motion retargeted from group B to group A" />
+    </div>
+    <p class="caption">Motion from a group B skeleton retargeted onto a group A skeleton.</p>
+
+    <h2>Motivation</h2>
+    <p>
+      Retargeted motion data across arbitrary pairs of skeletal domains, without requiring a
+      domain-specific mapping to be hand-authored for every new source/target skeleton pair.
+    </p>
+
+    <h2 id="method">Method</h2>
+    <p>
+      A deep skeletal network learns a shared motion representation that generalizes across
+      differing joint topologies and proportions, allowing motion captured on one skeleton
+      (e.g. a human actor) to be retargeted onto another (e.g. a simulated humanoid) while
+      preserving the semantics and style of the original motion.
+    </p>
+
+    <footer>
+      <span>&copy; <span id="year"></span> Anthony Roumi.</span>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

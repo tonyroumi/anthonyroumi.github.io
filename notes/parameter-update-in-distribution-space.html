@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Parameter Updates in Distribution Space — Anthony Roumi" />
+  <title>Parameter Updates in Distribution Space — Anthony Roumi</title>
+
+  <link rel="stylesheet" href="../style.css" />
+  <script src="../theme.js"></script>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script
+    id="MathJax-script"
+    async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="./index.html">Notes</a>
+
+    <header class="project-header">
+      <h1>Parameter Updates in Distribution Space</h1>
+    </header>
+
+    <section>
+      <h2>From Parameter Space to Distribution Space</h2>
+
+      <p>
+        Suppose a parameterized distribution \(p_\theta(x)\) is updated from \(\theta\) to
+      </p>
+
+      <div class="equation">
+        \[
+        \theta' = \theta + \Delta\theta.
+        \]
+      </div>
+
+      <p>
+        The question is not merely how large \(\Delta\theta\) is in Euclidean parameter space, but
+        how much that update changes the represented probability distribution.
+      </p>
+
+      <p>
+        Since KL divergence measures a difference between two distributions, define
+      </p>
+
+      <div class="equation">
+        \[
+        f(\Delta\theta)
+        =
+        D_{\mathrm{KL}}
+        \left(
+          p_\theta
+          \,\middle\|\,
+          p_{\theta+\Delta\theta}
+        \right).
+        \]
+      </div>
+
+      <p>
+        This function maps a displacement in parameter space to the resulting displacement in
+        distribution space.
+      </p>
+    </section>
+
+    <section>
+      <h2>Why We Need a Local Approximation</h2>
+
+      <p>
+        For a neural-network policy, the mapping from parameters to the induced distribution can be
+        complicated. Rather than reason about it exactly, we approximate the KL divergence locally
+        around \(\Delta\theta=0\) using a Taylor expansion.
+      </p>
+
+      <p>
+        The supporting concepts are:
+      </p>
+
+      <ul>
+        <li><a href="taylor-expansion.html">Taylor Expansion</a></li>
+        <li><a href="gradient.html">The Gradient</a></li>
+        <li><a href="hessian.html">The Hessian</a></li>
+        <li><a href="fisher-information.html">Fisher Information Matrix</a></li>
+        <li><a href="kl-divergence.html">KL Divergence</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Second-Order Approximation of KL</h2>
+
+      <p>
+        A multivariate Taylor expansion of \(f(\Delta\theta)\) around
+        \(\Delta\theta=0\) gives
+      </p>
+
+      <div class="equation">
+        \[
+        f(\Delta\theta)
+        \approx
+        f(0)
+        +
+        \nabla f(0)^\top \Delta\theta
+        +
+        \frac{1}{2}
+        \Delta\theta^\top
+        \nabla^2 f(0)
+        \Delta\theta.
+        \]
+      </div>
+
+      <p>
+        At \(\Delta\theta=0\), the two distributions are identical, so
+      </p>
+
+      <div class="equation">
+        \[
+        f(0)
+        =
+        D_{\mathrm{KL}}(p_\theta\|p_\theta)
+        =
+        0.
+        \]
+      </div>
+
+      <p>
+        KL divergence is locally minimized when the two distributions are equal, so the first-order
+        term also vanishes:
+      </p>
+
+      <div class="equation">
+        \[
+        \nabla f(0)=0.
+        \]
+      </div>
+
+      <p>
+        Therefore, for a small update,
+      </p>
+
+      <div class="equation">
+        \[
+        D_{\mathrm{KL}}
+        \left(
+          p_\theta
+          \,\middle\|\,
+          p_{\theta+\Delta\theta}
+        \right)
+        \approx
+        \frac{1}{2}
+        \Delta\theta^\top
+        F(\theta)
+        \Delta\theta,
+        \]
+      </div>
+
+      <p>
+        where the local Hessian of KL is the Fisher information matrix \(F(\theta)\).
+        This quadratic form is the local measure of how large a parameter update is in distribution
+        space.
+      </p>
+    </section>
+
+
+    <section>
+      <h2>The Local KL Metric</h2>
+
+      <p>
+        The derivation can now be summarized in one line:
+      </p>
+
+      <div class="equation">
+        \[
+        D_{\mathrm{KL}}
+        \left(
+          p_\theta
+          \,\middle\|\,
+          p_{\theta+\Delta\theta}
+        \right)
+        \approx
+        \frac{1}{2}
+        \Delta\theta^\top
+        F(\theta)
+        \Delta\theta.
+        \]
+      </div>
+
+      <p>
+        The Fisher information matrix is therefore the local curvature of KL divergence.
+        It converts a parameter-space displacement into an approximation of the corresponding
+        change in distribution space.
+      </p>
+
+      <p>
+        See the full derivation in
+        <a href="fisher-information.html">Fisher Information Matrix</a>.
+      </p>
+    </section>
+
+    <footer>
+      <span>&copy; <span id="year"></span> Anthony Roumi.</span>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

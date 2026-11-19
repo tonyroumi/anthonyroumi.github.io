@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Learning Mechanisms — Anthony Roumi" />
+  <title>Learning Mechanisms — Anthony Roumi</title>
+
+  <link rel="stylesheet" href="../style.css" />
+  <script src="../theme.js"></script>
+
+  <!-- MathJax for LaTeX equations -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script
+    id="MathJax-script"
+    async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+</head>
+
+<body>
+  <main class="page">
+    <a class="back-link" href="./index.html">Notes</a>
+
+    <header class="project-header">
+      <h1>Learning Mechanisms</h1>
+      <p class="meta">Adversarial Learning</p>
+    </header>
+
+    <section>
+      <h2>Overview</h2>
+
+      <p>
+        The goal of adversarial networks is to learn a usable training signal from samples of two
+        distributions, then use that signal to make one distribution resemble the other.
+      </p>
+
+      <p>
+        Formally, let \(P_*\) denote a reference distribution and let \(P_\theta\) denote the
+        distribution induced by a parameterized model. We would like to choose \(\theta\) so that
+      </p>
+
+      \[
+        P_\theta \rightarrow P_*.
+      \]
+
+      <p>
+        The core value that this framework provides is that the model is no longer limited to optimizing a
+        fixed, hand-specified notion of similarity or probabilistic fit. Instead, it can learn a
+        training signal from the data and capture generalized structure or behavior that may be difficult to obtain otherwise.
+      </p>
+    </section>
+
+    <section>
+      <h2>Derivation</h2>
+
+      <p class="source-note">
+        The core GAN derivation in this section follows the video in the cited
+        YouTube lecture, with portions of the mathematical
+        explanation expanded upon.
+        <sup class="citation"><a href="#ref-1">[1]</a></sup>
+        <sup class="citation"><a href="#ref-3">[3]</a></sup>
+      </p>
+
+      <h3>Reference and model distributions</h3>
+
+      <p>
+        Let \(p_*(x)\) be the reference probability density and \(p_\theta(x)\) be the model
+        probability density.
+      </p>
+
+      <p>
+        Introduce a discriminator
+      </p>
+
+      \[
+        D_\Theta(x) \in [0,1],
+      \]
+
+      <p>
+        interpreted as the probability that \(x\) came from \(p_*\) rather than \(p_\theta\).
+        Equivalently, for a binary label \(Y\in\{0,1\}\),
+      </p>
+
+      \[
+        D_\Theta(Y\mid x)
+        =
+        \begin{cases}
+          D_\Theta(x), & Y=1 \quad \text{(real)},\\[4pt]
+          1-D_\Theta(x), & Y=0 \quad \text{(generated)}.
+        \end{cases}
+      \]
+
+      <p>
+        The target conditional label distribution is deterministic:
+      </p>
+
+      \[
+        p_b^*(Y\mid x)
+        =
+        \begin{cases}
+          1, & Y=1,\; x\sim p_*(x),\\
+          0, & Y=0,\; x\sim p_*(x),\\
+          0, & Y=1,\; x\sim p_\theta(x),\\
+          1, & Y=0,\; x\sim p_\theta(x).
+        \end{cases}
+      \]
+
+      <p>
+        We have therefore defined two conditional Bernoulli distributions. The discriminator
+        produces \(D_\Theta(Y\mid x)\), while \(p_b^*(Y\mid x)\) assigns the desired class label.
+        We train the discriminator to align these two distributions.
+      </p>
+
+      <h3>From KL divergence to binary cross-entropy</h3>
+
+      <p>
+        One way to express this alignment is through the KL divergence:
+      </p>
+
+      \[
+        D_{\mathrm{KL}}\!\left(p_b^* \,\|\, D_\Theta\right)
+        =
+        \mathbb{E}_{Y\sim p_b^*(Y\mid x)}
+        \left[
+          \log
+          \frac{p_b^*(Y\mid x)}
+               {D_\Theta(Y\mid x)}
+        \right].
+      \]
+
+      <p>
+        Expanding the expectation gives
+      </p>
+
+      \[
+        D_{\mathrm{KL}}\!\left(p_b^* \,\|\, D_\Theta\right)
+        =
+        \sum_Y
+        p_b^*(Y\mid x)\log p_b^*(Y\mid x)
+        -
+        \sum_Y
+        p_b^*(Y\mid x)\log D_\Theta(Y\mid x).
+      \]
+
+      <p>
+        The first term does not depend on the discriminator parameters, so minimizing the KL
+        divergence with respect to \(\Theta\) is equivalent to minimizing the cross-entropy
+      </p>
+
+      \[
+        \mathcal{L}
+        =
+        -\sum_Y p_b^*(Y\mid x)\log D_\Theta(Y\mid x).
+      \]
+
+      <p>
+        Because there are only two classes,
+      </p>
+
+      \[
+        \mathcal{L}
+        =
+        -p_b^*(0\mid x)\log D_\Theta(0\mid x)
+        -p_b^*(1\mid x)\log D_\Theta(1\mid x).
+      \]
+
+      <p>
+        Substituting
+        \(D_\Theta(1\mid x)=D_\Theta(x)\) and
+        \(D_\Theta(0\mid x)=1-D_\Theta(x)\) gives the standard binary
+        cross-entropy loss:
+      </p>
+
+      \[
+        \mathcal{L}_{\mathrm{BCE}}
+        =
+        -\left(1-p_b^*(1\mid x)\right)\log\!\left(1-D_\Theta(x)\right)
+        -
+        p_b^*(1\mid x)\log D_\Theta(x).
+      \]
+
+      <p>
+        Averaging over real and generated samples gives the discriminator loss
+      </p>
+
+      \[
+        \mathcal{L}_D
+        =
+        -\mathbb{E}_{x\sim p_*}
+          \left[\log D_\Theta(x)\right]
+        -
+        \mathbb{E}_{x\sim p_\theta}
+          \left[\log\left(1-D_\Theta(x)\right)\right].
+      \]
+
+      <p>
+        If the model is represented by a generator \(G_\theta\) that transforms
+        \(z\sim p_z\) into a sample \(G_\theta(z)\), then
+      </p>
+
+      \[
+        \mathcal{L}_D
+        =
+        -\mathbb{E}_{x\sim p_*}
+          \left[\log D_\Theta(x)\right]
+        -
+        \mathbb{E}_{z\sim p_z}
+          \left[
+            \log\left(1-D_\Theta(G_\theta(z))\right)
+          \right].
+      \]
+
+      <h3>The adversarial objective</h3>
+
+      <p>
+        The discriminator attempts to distinguish samples from \(p_*\) and \(p_\theta\), while
+        the generator attempts to make its generated samples difficult to distinguish from real
+        samples. These are directly competing objectives.
+      </p>
+
+      <p>
+        Define the GAN value function
+      </p>
+
+      \[
+        V(G,D)
+        =
+        \mathbb{E}_{x\sim p_*}\left[\log D(x)\right]
+        +
+        \mathbb{E}_{z\sim p_z}
+        \left[
+          \log\left(1-D(G(z))\right)
+        \right].
+      \]
+
+      <p>
+        The discriminator maximizes this value while the generator minimizes it.
+        This is the original GAN minimax objective.
+        <sup class="citation"><a href="#ref-1">[1]</a></sup>
+        <sup class="citation"><a href="#ref-2">[2]</a></sup>
+      </p>
+
+      \[
+        \boxed{
+          \min_G \max_D V(G,D)
+        }.
+      \]
+
+      <p>
+        This gives a two-player minimax game. In the idealized setting, training can be viewed as
+        searching for a Nash equilibrium: a state in which neither player can improve its own
+        objective by changing its parameters while the other player remains fixed.
+      </p>
+
+      <h3>Optimal discriminator for a fixed generator</h3>
+
+      <p>
+        For a fixed generator, write the value function directly in terms of the reference and
+        model densities:
+      </p>
+
+      \[
+        V(G,D)
+        =
+        \int
+        \left[
+          p_*(x)\log D(x)
+          +
+          p_\theta(x)\log(1-D(x))
+        \right]dx.
+      \]
+
+      <p>
+        Because \(D(x)\) can be optimized pointwise, we maximize
+      </p>
+
+      \[
+        p_*(x)\log D(x)
+        +
+        p_\theta(x)\log(1-D(x))
+      \]
+
+      <p>
+        for each \(x\). Taking the derivative with respect to \(D(x)\),
+      </p>
+
+      \[
+        \frac{d}{dD(x)}
+        \left[
+          p_*(x)\log D(x)
+          +
+          p_\theta(x)\log(1-D(x))
+        \right]
+        =
+        \frac{p_*(x)}{D(x)}
+        -
+        \frac{p_\theta(x)}{1-D(x)}.
+      \]
+
+      <p>
+        At a stationary point,
+      </p>
+
+      \[
+        \frac{p_*(x)}{D(x)}
+        -
+        \frac{p_\theta(x)}{1-D(x)}
+        =
+        0.
+      \]
+
+      <p>
+        Solving for \(D(x)\) gives
+      </p>
+
+      \[
+        \boxed{
+          D_G^*(x)
+          =
+          \frac{p_*(x)}
+               {p_*(x)+p_\theta(x)}
+        }.
+      \]
+
+      <p>
+        The second derivative is
+      </p>
+
+      \[
+        -\frac{p_*(x)}{D(x)^2}
+        -
+        \frac{p_\theta(x)}{(1-D(x))^2}
+        < 0,
+      \]
+
+      <p>
+        so this stationary point is a maximum.
+        <sup class="citation"><a href="#ref-1">[1]</a></sup>
+        <sup class="citation"><a href="#ref-2">[2]</a></sup>
+      </p>
+
+      <h3>Optimal generator under the optimal discriminator</h3>
+
+      <p>
+        Now assume that the discriminator remains optimal while the generator changes. Define
+      </p>
+
+      \[
+        C(G)
+        =
+        \max_D V(G,D)
+        =
+        V(G,D_G^*).
+      \]
+
+      <p>
+        Substituting the optimal discriminator,
+      </p>
+
+      \[
+        C(G)
+        =
+        \mathbb{E}_{x\sim p_*}
+        \left[
+          \log
+          \frac{p_*(x)}
+               {p_*(x)+p_\theta(x)}
+        \right]
+        +
+        \mathbb{E}_{x\sim p_\theta}
+        \left[
+          \log
+          \frac{p_\theta(x)}
+               {p_*(x)+p_\theta(x)}
+        \right].
+      \]
+
+      <p>
+        Let
+      </p>
+
+      \[
+        m(x)=\frac{1}{2}\left(p_*(x)+p_\theta(x)\right).
+      \]
+
+      <p>
+        Then
+      </p>
+
+      \[
+        C(G)
+        =
+        -\log 4
+        +
+        D_{\mathrm{KL}}\!\left(p_*\,\|\,m\right)
+        +
+        D_{\mathrm{KL}}\!\left(p_\theta\,\|\,m\right).
+      \]
+
+      <p>
+        Using the Jensen-Shannon divergence,
+      </p>
+
+      \[
+        D_{\mathrm{JS}}(P\|Q)
+        =
+        \frac{1}{2}
+        D_{\mathrm{KL}}\!\left(P\,\|\,M\right)
+        +
+        \frac{1}{2}
+        D_{\mathrm{KL}}\!\left(Q\,\|\,M\right),
+        \qquad
+        M=\frac{1}{2}(P+Q),
+      \]
+
+      <p>
+        we obtain
+      </p>
+
+      \[
+        \boxed{
+          C(G)
+          =
+          -\log 4
+          +
+          2D_{\mathrm{JS}}\!\left(p_*\,\|\,p_\theta\right)
+        }.
+      \]
+
+      <p>
+        The Jensen-Shannon divergence is non-negative and reaches its minimum value of zero if
+        and only if the two distributions are equal. Therefore,
+        <sup class="citation"><a href="#ref-1">[1]</a></sup>
+        <sup class="citation"><a href="#ref-2">[2]</a></sup>
+      </p>
+
+      \[
+        p_\theta=p_*
+      \]
+
+      <p>
+        is the global optimum, and at that point
+      </p>
+
+      \[
+        D_G^*(x)=\frac{1}{2}.
+      \]
+
+      <p>
+        The minimum value of the GAN objective is
+      </p>
+
+      \[
+        \min_G C(G)
+        =
+        -\log 4.
+      \]
+
+      <p>
+        Thus, in the idealized setting, minimizing the generator objective while maintaining an
+        optimal discriminator pushes the model distribution toward the reference distribution.
+      </p>
+    </section>
+
+    <section>
+      <h2>Idealized Training Dynamics</h2>
+
+      <p>
+        The derivation suggests the following conceptual progression in an idealized GAN training
+        process:
+      </p>
+
+      <ol>
+        <li>
+          <strong>Initial state:</strong>
+          \(p_\theta\) and \(p_*\) differ, and the discriminator is not yet optimal.
+        </li>
+        <li>
+          <strong>Discriminator update:</strong>
+          for the current generator, \(D\) moves toward
+          \(D_G^*(x)\).
+        </li>
+        <li>
+          <strong>Generator update:</strong>
+          the generator changes \(p_\theta\) so that it moves closer to \(p_*\).
+        </li>
+        <li>
+          <strong>Ideal convergence:</strong>
+          \(p_\theta=p_*\), at which point
+          \(D(x)=\tfrac{1}{2}\) everywhere the distributions have support.
+        </li>
+      </ol>
+
+      <p>
+        This reasoning assumes that the discriminator can remain near its optimum as the generator
+        changes. Real training generally does not satisfy that assumption exactly.
+      </p>
+    </section>
+
+    <section>
+      <h2>Training Issues</h2>
+
+      <h3>1. An overly strong or overly weak discriminator</h3>
+
+      <h4>Overly strong discriminator</h4>
+
+      <p>
+        The theoretical analysis often assumes that the discriminator approaches
+        \(D_G^*\) rapidly. In practice, however, a discriminator that becomes too good can stop
+        providing a useful learning signal to the generator.
+      </p>
+
+      <p>
+        For the original saturating generator objective
+      </p>
+
+      \[
+        \mathcal{L}_G
+        =
+        \mathbb{E}_{z\sim p_z}
+        \left[
+          \log\left(1-D(G_\theta(z))\right)
+        \right],
+      \]
+
+      <p>
+        let \(D(x)=\sigma(a(x))\), where \(a(x)\) is the discriminator logit. Then, for a sample
+        \(z\),
+      </p>
+
+      \[
+        \nabla_\theta \mathcal{L}_G
+        =
+        -D(G_\theta(z))
+        \,
+        \nabla_x a(G_\theta(z))
+        \,
+        \nabla_\theta G_\theta(z).
+      \]
+
+      <p>
+        If the discriminator can almost perfectly identify generated samples, then
+      </p>
+
+      \[
+        D(G_\theta(z))\approx 0,
+      \]
+
+      <p>
+        and consequently
+      </p>
+
+      \[
+        \nabla_\theta \mathcal{L}_G \approx 0.
+      \]
+
+      <p>
+        The generator then receives very little gradient information. This is the classic
+        vanishing-gradient problem associated with the original saturating GAN generator
+        objective.
+        <sup class="citation"><a href="#ref-2">[2]</a></sup>
+      </p>
+
+      <h4>Overly weak discriminator</h4>
+
+      <p>
+        The opposite problem occurs when the generator changes too quickly for the discriminator
+        to keep up. A poorly trained discriminator provides an inaccurate training signal, so a
+        bad discriminator can in turn produce bad generator updates.
+      </p>
+
+      <p>
+        GANs are therefore usually trained with alternating optimization:
+      </p>
+
+      <pre><code>for k discriminator steps:
+    update discriminator parameters using ∇L_D
+
+update generator parameters using ∇L_G</code></pre>
+
+      <p>
+        The relative number of discriminator and generator updates, as well as their learning
+        rates, must be balanced. In some settings the discriminator is trained more aggressively,
+        for example with
+      </p>
+
+      \[
+        \operatorname{lr}(D) > \operatorname{lr}(G),
+      \]
+
+      <p>
+        although the appropriate balance depends on the architecture, objective, and data.
+      </p>
+
+      <h3>2. Non-convergence</h3>
+
+      <p>
+        Even if both players receive meaningful gradients, adversarial optimization does not
+        behave like ordinary minimization of a single scalar objective. The coupled gradient
+        dynamics can cycle around an equilibrium rather than converge to it.
+      </p>
+
+      <p>
+        Consider a simple two-player game with scalar parameters \(x\) and \(y\):
+      </p>
+
+      \[
+        L_A(x,y)=xy,
+        \qquad
+        L_B(x,y)=-xy.
+      \]
+
+      <p>
+        Their gradients are
+      </p>
+
+      \[
+        \frac{\partial L_A}{\partial x}=y,
+        \qquad
+        \frac{\partial L_B}{\partial y}=-x.
+      \]
+
+      <p>
+        The game has an equilibrium at
+      </p>
+
+      \[
+        x=y=0.
+      \]
+
+      <p>
+        However, alternating or simultaneous gradient updates can produce rotational dynamics
+        around the origin. Instead of approaching the equilibrium, the parameters can trace a
+        stable orbit around it. This simple example illustrates why the existence of a Nash
+        equilibrium does not imply that ordinary gradient-based GAN training will actually
+        converge to that equilibrium.
+      </p>
+
+      <h3>3. Mode collapse</h3>
+
+      <p>
+        Mode collapse occurs when the generator learns to achieve good discriminator performance
+        by mapping many different latent samples to the same, or a very small number of, outputs.
+        Instead of using the latent variable \(z\) to represent diverse outcomes,
+      </p>
+
+      \[
+        z \sim p_z(z)
+        \quad \longrightarrow \quad
+        G_\theta(z) \approx x_0
+      \]
+
+      <p>
+        for many distinct values of \(z\). In the extreme case, the generator effectively ignores
+        the latent input and produces nearly the same sample every time.
+      </p>
+
+      <p>
+        The generated output may still look realistic, so the generator can appear to perform well
+        on individual samples. However, it has failed at the actual distribution-matching objective:
+        \(p_\theta\) captures only a small portion of the support or modes of the reference
+        distribution \(p_*\).
+      </p>
+
+      <p>
+        This behavior can arise because repeatedly producing an output that is known to fool the
+        discriminator can temporarily reduce the generator's loss. The generator therefore has an
+        incentive to concentrate probability mass around a small set of successful outputs rather
+        than representing the full diversity of the data distribution.
+      </p>
+
+      \[
+        p_\theta(x)
+        \not\approx
+        p_*(x)
+        \qquad
+        \text{even when individual samples from } p_\theta
+        \text{ appear realistic.}
+      \]
+
+      <p>
+        In other words, sample quality alone is not sufficient. Successful generative modeling
+        requires both realistic samples and adequate coverage of the modes of the target
+        distribution.
+        <sup class="citation"><a href="#ref-1">[1]</a></sup>
+      </p>
+
+    </section>
+
+
+    <section>
+      <h2>References</h2>
+
+      <ol class="references">
+        <li id="ref-1">
+          YouTube lecture used as the primary source for much of the derivation and
+          discussion of GAN training behavior:
+          <a href="https://www.youtube.com/watch?v=RAa55G-oEuk">
+            https://www.youtube.com/watch?v=RAa55G-oEuk
+          </a>.
+        </li>
+
+        <li id="ref-2">
+          Goodfellow, I. J., Pouget-Abadie, J., Mirza, M., Xu, B., Warde-Farley, D.,
+          Ozair, S., Courville, A., &amp; Bengio, Y. (2014).
+          <em>Generative Adversarial Nets</em>.
+          Advances in Neural Information Processing Systems 27.
+          <a href="https://arxiv.org/abs/1406.2661">
+            arXiv:1406.2661
+          </a>.
+        </li>
+
+        <li id="ref-3">
+          OpenAI. <em>ChatGPT</em> (GPT-5.6 Sol).
+          Used for transcription of handwritten notes, mathematical typesetting.
+        </li>
+      </ol>
+    </section>
+
+    <footer>
+      <span>&copy; <span id="year"></span> Anthony Roumi.</span>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

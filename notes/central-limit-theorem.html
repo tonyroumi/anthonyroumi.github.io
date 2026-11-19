@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Central Limit Theorem — Anthony Roumi" />
+  <title>Central Limit Theorem — Anthony Roumi</title>
+
+  <link rel="stylesheet" href="../style.css" />
+  <script src="../theme.js"></script>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script
+    id="MathJax-script"
+    async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="./index.html">Notes</a>
+
+    <header class="project-header">
+      <h1>Central Limit Theorem</h1>
+    </header>
+
+    <section>
+      <p>
+        Suppose we estimate an expectation with a Monte Carlo sample average:
+      </p>
+      <div class="equation">
+        \[
+        \hat I
+        =
+        \frac{1}{N}\sum_{i=1}^{N} f(x_i),
+        \qquad x_i\sim p(x).
+        \]
+      </div>
+      <p>
+        The estimator is centered on the expectation we are trying to estimate,
+      </p>
+      <div class="equation">
+        \[
+        \mathbb{E}[\hat I]
+        =
+        \mathbb{E}_{x\sim p}[f(x)],
+        \]
+      </div>
+      <p>and its variance is</p>
+      <div class="equation">
+        \[
+        \operatorname{Var}(\hat I)
+        =
+        \frac{1}{N}\operatorname{Var}_{x\sim p}(f(x)).
+        \]
+      </div>
+      <p>
+        By the central limit theorem, for sufficiently large \(N\), the sampling distribution of
+        the average is approximately normal:
+      </p>
+      <div class="equation">
+        \[
+        \hat I
+        \approx
+        \mathcal{N}\!\left(
+          \mu,
+          \sigma^2
+        \right),
+        \qquad
+        \mu=\mathbb{E}_{x\sim p}[f(x)],
+        \qquad
+        \sigma^2=\frac{1}{N}\operatorname{Var}_{x\sim p}(f(x)).
+        \]
+      </div>
+    </section>
+
+    <footer>
+      <span>&copy; <span id="year"></span> Anthony Roumi.</span>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

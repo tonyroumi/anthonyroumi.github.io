@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="KL Divergence — Anthony Roumi" />
+  <title>KL Divergence — Anthony Roumi</title>
+
+  <link rel="stylesheet" href="../style.css" />
+  <script src="../theme.js"></script>
+
+  <!-- MathJax for LaTeX equations -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script
+    id="MathJax-script"
+    async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="./index.html">Notes</a>
+
+    <header class="project-header">
+      <h1>KL Divergence</h1>
+    </header>
+
+    <section>
+      <h2>Definition</h2>
+
+      <p>
+        For two probability distributions \(p\) and \(q\) defined over the same space, the
+        Kullback-Leibler divergence from \(q\) to \(p\) is
+      </p>
+
+      <div class="equation">
+        \[
+        D_{\mathrm{KL}}(p \,\|\, q)
+        =
+        \mathbb{E}_{x\sim p}
+        \left[
+          \log \frac{p(x)}{q(x)}
+        \right].
+        \]
+      </div>
+
+      <p>
+        For a continuous random variable, this is
+      </p>
+
+      <div class="equation">
+        \[
+        D_{\mathrm{KL}}(p \,\|\, q)
+        =
+        \int
+        p(x)
+        \log
+        \frac{p(x)}{q(x)}
+        \,dx.
+        \]
+      </div>
+
+      <p>
+        For a discrete random variable, the equivalent form is
+      </p>
+
+      <div class="equation">
+        \[
+        D_{\mathrm{KL}}(p \,\|\, q)
+        =
+        \sum_x
+        p(x)
+        \log
+        \frac{p(x)}{q(x)}.
+        \]
+      </div>
+    </section>
+
+    <section>
+      <h2>Interpretation</h2>
+
+      <p>
+        The KL divergence asks how differently \(q\) assigns probability to outcomes that are
+        actually likely under \(p\). One way to read the definition is:
+      </p>
+
+      <ol>
+        <li>Sample \(x\) according to \(p\).</li>
+        <li>Compare the probability that \(p\) assigns to \(x\) with the probability that \(q\) assigns to \(x\).</li>
+        <li>Take the logarithm of that probability ratio.</li>
+        <li>Average this quantity over outcomes weighted by how likely they are under \(p\).</li>
+      </ol>
+
+      <p>
+        If \(q\) assigns similar probabilities to the outcomes that \(p\) commonly produces, then
+        \(D_{\mathrm{KL}}(p\|q)\) is small. If \(q\) assigns very low probability to outcomes that are
+        common under \(p\), then the KL divergence becomes large.
+      </p>
+    </section>
+
+    <section>
+      <h2>Why the Direction Matters</h2>
+
+      <p>
+        KL divergence is asymmetric:
+      </p>
+
+      <div class="equation">
+        \[
+        D_{\mathrm{KL}}(p\|q)
+        \neq
+        D_{\mathrm{KL}}(q\|p)
+        \quad \text{in general}.
+        \]
+      </div>
+
+      <p>
+        The first argument determines which distribution supplies the weighting. In
+        \(D_{\mathrm{KL}}(p\|q)\), outcomes are weighted according to \(p\), so the divergence is most
+        sensitive to how \(q\) behaves on outcomes that matter under \(p\).
+      </p>
+    </section>
+
+    <section>
+      <h2>Connection to Entropy and Cross-Entropy</h2>
+
+      <p>
+        KL divergence can be rewritten in terms of entropy and cross-entropy:
+      </p>
+
+      <div class="equation">
+        \[
+        D_{\mathrm{KL}}(p\|q)
+        =
+        H(p,q) - H(p),
+        \]
+      </div>
+
+      <p>
+        where the entropy of \(p\) is
+      </p>
+
+      <div class="equation">
+        \[
+        H(p)
+        =
+        -\mathbb{E}_{x\sim p}
+        \left[
+          \log p(x)
+        \right],
+        \]
+      </div>
+
+      <p>
+        and the cross-entropy between \(p\) and \(q\) is
+      </p>
+
+      <div class="equation">
+        \[
+        H(p,q)
+        =
+        -\mathbb{E}_{x\sim p}
+        \left[
+          \log q(x)
+        \right].
+        \]
+      </div>
+
+      <p>
+        Therefore, KL divergence measures the extra expected surprise incurred when \(q\) is used to
+        represent data generated according to \(p\), relative to using the true distribution \(p\)
+        itself.
+      </p>
+    </section>
+
+    <section>
+      <h2>Connection to Policy Optimization</h2>
+
+      <p>
+        In policy-gradient methods, the distributions of interest are often two policies evaluated at
+        the same state. If \(\pi_{\theta_{\text{old}}}\) is the policy before an update and
+        \(\pi_\theta\) is the updated policy, then a common quantity is
+      </p>
+
+      <div class="equation">
+        \[
+        D_{\mathrm{KL}}
+        \left(
+          \pi_{\theta_{\text{old}}}(\cdot\mid s)
+          \,\middle\|\,
+          \pi_\theta(\cdot\mid s)
+        \right).
+        \]
+      </div>
+
+      <p>
+        This measures how much the new action distribution differs from the old one at state \(s\).
+        Unlike Euclidean distance between parameter vectors, it measures change directly in policy
+        space, which is the quantity that matters for controlling destructive policy updates.
+      </p>
+    </section>
+
+    <footer>
+      <span>&copy; <span id="year"></span> Anthony Roumi.</span>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

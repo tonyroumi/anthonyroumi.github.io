@@ -1,0 +1,564 @@
+/* ───────────────────────── Theme tokens ───────────────────────── */
+
+:root {
+  --text: #202124;
+  --muted: #696969;
+  --line: #e8e8e8;
+  --link: #2459a9;
+  --surface: #f8f8f8;
+  --bg: #fff;
+  --code-bg: #f6f6f6;
+  --max-width: 900px;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --text: #e4e4e4;
+  --muted: #9b9b9b;
+  --line: #2e2f33;
+  --link: #7fa9ec;
+  --surface: #1c1d20;
+  --bg: #141517;
+  --code-bg: #1c1d20;
+  color-scheme: dark;
+}
+
+/* ───────────────────────── Base ───────────────────────── */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 17px;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 3px;
+  font-size: 2rem;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  font-weight: 700;
+}
+
+h2 {
+  margin-bottom: 17px;
+  font-size: 1.28rem;
+  letter-spacing: -0.015em;
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+a:hover,
+a:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+hr {
+  margin: 0;
+  border: none;
+  border-top: 1px solid var(--line);
+}
+
+section {
+  margin-top: 46px;
+}
+
+section:first-of-type {
+  margin-top: 0;
+}
+
+code,
+pre {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.84em;
+}
+
+code {
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: var(--code-bg);
+}
+
+pre {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--code-bg);
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
+pre code {
+  padding: 0;
+  background: none;
+}
+
+/* ───────────────────────── Layout ───────────────────────── */
+
+.page {
+  width: min(calc(100% - 40px), var(--max-width));
+  margin: 0 auto;
+  padding: 72px 0 48px;
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 64px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+/* ───────────────────────── Home intro ───────────────────────── */
+
+.intro {
+  margin-bottom: 34px;
+}
+
+.intro .identity {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.role {
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.links,
+.entry-links {
+  font-size: 0.96rem;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: -6px;
+}
+
+.links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: var(--muted);
+  opacity: 0.65;
+  transition: opacity 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.links a:hover,
+.links a:focus-visible {
+  color: var(--link);
+  background: var(--surface);
+  opacity: 1;
+  text-decoration: none;
+}
+
+.links svg {
+  display: block;
+  width: 17px;
+  height: 17px;
+}
+
+/* ───────────────────────── Page header ───────────────────────── */
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  margin-bottom: 28px;
+  padding: 0 14px 0 13px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+/* Thin chevron drawn with borders so it matches the toggle's line icons */
+.back-link::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-left: 1.8px solid currentColor;
+  border-bottom: 1.8px solid currentColor;
+  transform: translateX(2px) rotate(45deg);
+  transition: transform 0.15s ease;
+}
+
+.back-link:hover,
+.back-link:focus-visible {
+  color: var(--text);
+  border-color: var(--muted);
+  text-decoration: none;
+}
+
+.back-link:hover::before,
+.back-link:focus-visible::before {
+  transform: translateX(-1px) rotate(45deg);
+}
+
+.project-header {
+  margin-bottom: 34px;
+}
+
+.project-header h1 {
+  font-size: 1.7rem;
+}
+
+.project-header .meta {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.project-header .entry-links {
+  margin-top: 10px;
+}
+
+/* ───────────────────────── Project entries ───────────────────────── */
+
+.section-heading {
+  margin-bottom: 20px;
+}
+
+.section-heading h2 {
+  margin-bottom: 2px;
+}
+
+.entry {
+  margin: 0 0 30px;
+}
+
+.entry:has(.entry-media) {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.entry h3 {
+  margin-bottom: 2px;
+  font-size: 1.03rem;
+  line-height: 1.4;
+}
+
+.entry p {
+  margin-bottom: 4px;
+}
+
+.entry-links {
+  margin-top: 6px;
+}
+
+.entry-body > :last-child {
+  margin-bottom: 0;
+}
+
+.entry-media {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.entry-media video,
+.entry-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* ───────────────────────── Project pages ───────────────────────── */
+
+.project-overview p {
+  line-height: 1.75;
+}
+
+.project-demo {
+  margin: 42px 0 48px;
+}
+
+.demo-heading {
+  margin-bottom: 16px;
+}
+
+.demo-heading h3 {
+  margin: 0 0 5px;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+/* Side-by-side videos: learned policy on the left, references on the right */
+.hero-comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  aspect-ratio: 32 / 9;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+/* One 16:9 video on the left, N stacked 16:9 videos on the right (columns N:1, no bars) */
+.hero-comparison.refs-2 {
+  grid-template-columns: 2fr 1fr;
+  aspect-ratio: 8 / 3;
+}
+
+.hero-comparison.refs-3 {
+  grid-template-columns: 3fr 1fr;
+  aspect-ratio: 64 / 27;
+}
+
+.hero-panel {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.hero-panel:first-child {
+  border-right: 1px solid var(--line);
+}
+
+.hero-panel video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.hero-refs {
+  display: grid;
+  grid-auto-rows: 1fr;
+  min-width: 0;
+  min-height: 0;
+}
+
+.hero-refs .hero-panel {
+  border-right: 0;
+}
+
+.hero-refs .hero-panel + .hero-panel {
+  border-top: 1px solid var(--line);
+}
+
+.hero-label {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: var(--text);
+  font-size: 0.74rem;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+}
+
+/* Dot marks the clip type: accent for the learned policy, muted for references */
+.hero-label::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.hero-comparison > .hero-panel:first-child .hero-label::before {
+  background: var(--link);
+}
+
+.hero-refs .hero-label {
+  left: 6px;
+  bottom: 6px;
+  gap: 5px;
+  padding: 1px 8px 1px 6px;
+  font-size: 0.66rem;
+}
+
+.hero-refs .hero-label::before {
+  width: 5px;
+  height: 5px;
+}
+
+/* ───────────────────────── Notes ───────────────────────── */
+
+.toc {
+  margin: 0;
+  padding-left: 1.3rem;
+  list-style: none;
+}
+
+.toc li {
+  margin-bottom: 10px;
+}
+
+.toc ul {
+  margin: 10px 0 0;
+  padding-left: 1.3rem;
+  list-style: circle;
+}
+
+.toc ul ul {
+  list-style: square;
+}
+
+.note-image {
+  display: block;
+  max-width: 35%;
+  height: auto;
+  margin: 16px auto;
+}
+
+.note-image-1 {
+  display: block;
+  max-width: 45%;
+  height: auto;
+  margin: 16px auto;
+}
+
+.citation {
+  margin-left: 0.08em;
+  font-size: 0.75em;
+  line-height: 0;
+  vertical-align: super;
+}
+
+.citation a {
+  text-decoration: none;
+}
+
+.source-note {
+  font-size: 0.95em;
+}
+
+.references {
+  margin: 0;
+  padding-left: 1.4rem;
+  color: var(--muted);
+  font-size: 0.94rem;
+}
+
+.references li {
+  margin-bottom: 0.8rem;
+}
+
+.references li:last-child {
+  margin-bottom: 0;
+}
+
+/* ───────────────────────── Theme toggle (injected by theme.js) ───────────────────────── */
+
+.theme-toggle {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.theme-toggle:hover,
+.theme-toggle:focus-visible {
+  color: var(--text);
+}
+
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.theme-toggle .icon-sun,
+:root[data-theme="dark"] .theme-toggle .icon-moon {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-toggle .icon-sun {
+  display: block;
+}
+
+/* ───────────────────────── Small screens ───────────────────────── */
+
+@media (max-width: 650px) {
+  html {
+    font-size: 16px;
+  }
+
+  .page {
+    width: min(calc(100% - 30px), var(--max-width));
+    padding-top: 42px;
+  }
+
+  .entry:has(.entry-media) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  footer {
+    flex-direction: column;
+    gap: 3px;
+  }
+}

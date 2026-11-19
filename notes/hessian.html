@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="The Hessian — Anthony Roumi" />
+  <title>The Hessian — Anthony Roumi</title>
+
+  <link rel="stylesheet" href="../style.css" />
+  <script src="../theme.js"></script>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script
+    id="MathJax-script"
+    async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+</head>
+<body>
+  <main class="page">
+    <a class="back-link" href="./index.html">Notes</a>
+
+    <header class="project-header">
+      <h1>The Hessian</h1>
+    </header>
+
+    <section>
+      <h2>Definition</h2>
+
+      <p>
+        The Hessian is the matrix of all second partial derivatives of a scalar-valued function.
+        For
+      </p>
+
+      <div class="equation">
+        \[
+        f:\mathbb{R}^n\rightarrow\mathbb{R},
+        \]
+      </div>
+
+      <p>
+        the Hessian is
+      </p>
+
+      <div class="equation">
+        \[
+        H_f(x)
+        =
+        \nabla^2 f(x)
+        =
+        \begin{bmatrix}
+        \frac{\partial^2 f}{\partial x_1^2}
+        &
+        \cdots
+        &
+        \frac{\partial^2 f}{\partial x_1\partial x_n}
+        \\
+        \vdots
+        &
+        \ddots
+        &
+        \vdots
+        \\
+        \frac{\partial^2 f}{\partial x_n\partial x_1}
+        &
+        \cdots
+        &
+        \frac{\partial^2 f}{\partial x_n^2}
+        \end{bmatrix}.
+        \]
+      </div>
+
+      <p>
+        The gradient tells us the local slope. The Hessian tells us how that slope changes as we move:
+        it describes local curvature.
+      </p>
+    </section>
+
+    <section>
+      <h2>Second-Order Response</h2>
+
+      <p>
+        In a second-order Taylor expansion, curvature contributes through the quadratic form
+      </p>
+
+      <div class="equation">
+        \[
+        \frac{1}{2}h^\top H_f(x_0)h.
+        \]
+      </div>
+
+      <p>
+        The direction \(h\) matters: the same Hessian can imply very different curvature along
+        different directions.
+      </p>
+    </section>
+
+    <section>
+      <h2>Example</h2>
+
+      <p>
+        For
+      </p>
+
+      <div class="equation">
+        \[
+        f(x,y)=x^2+xy+2y^2,
+        \]
+      </div>
+
+      <p>
+        the Hessian is
+      </p>
+
+      <div class="equation">
+        \[
+        H_f
+        =
+        \begin{bmatrix}
+        2&1\\
+        1&4
+        \end{bmatrix}.
+        \]
+      </div>
+
+      <p>
+        With displacement
+      </p>
+
+      <div class="equation">
+        \[
+        h
+        =
+        \begin{bmatrix}
+        0\\
+        0.1
+        \end{bmatrix},
+        \]
+      </div>
+
+      <p>
+        first apply the Hessian:
+      </p>
+
+      <div class="equation">
+        \[
+        H_f h
+        =
+        \begin{bmatrix}
+        2&1\\
+        1&4
+        \end{bmatrix}
+        \begin{bmatrix}
+        0\\
+        0.1
+        \end{bmatrix}
+        =
+        \begin{bmatrix}
+        0.1\\
+        0.4
+        \end{bmatrix}.
+        \]
+      </div>
+
+      <p>
+        Then
+      </p>
+
+      <div class="equation">
+        \[
+        h^\top H_f h
+        =
+        \begin{bmatrix}
+        0&0.1
+        \end{bmatrix}
+        \begin{bmatrix}
+        0.1\\
+        0.4
+        \end{bmatrix}
+        =
+        0.04,
+        \]
+      </div>
+
+      <p>
+        so the second-order correction is
+      </p>
+
+      <div class="equation">
+        \[
+        \frac{1}{2}h^\top H_f h
+        =
+        0.02.
+        \]
+      </div>
+    </section>
+
+    <section>
+      <h2>Why the Hessian Matters for Policy Optimization</h2>
+
+      <p>
+        When KL divergence is expanded locally around the current policy, its first-order term
+        vanishes and its second-order term controls the local change in distribution:
+      </p>
+
+      <div class="equation">
+        \[
+        D_{\mathrm{KL}}
+        \left(
+          p_\theta
+          \,\middle\|\,
+          p_{\theta+\Delta\theta}
+        \right)
+        \approx
+        \frac{1}{2}
+        \Delta\theta^\top
+        F(\theta)
+        \Delta\theta.
+        \]
+      </div>
+
+      <p>
+        Here the Hessian of the local KL is the Fisher information matrix. This is the bridge from
+        ordinary curvature to the geometry used by natural-gradient and trust-region methods.
+      </p>
+    </section>
+
+    <footer>
+      <span>&copy; <span id="year"></span> Anthony Roumi.</span>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

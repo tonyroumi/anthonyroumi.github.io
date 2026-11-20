@@ -496,3 +496,245 @@ footer {
     gap: 3px;
   }
 }
+
+/* ───────────────────────── Paper project page ───────────────────────── */
+
+.paper-header {
+  margin: 8px 0 40px;
+  text-align: center;
+}
+
+.paper-header h1 {
+  max-width: 760px;
+  margin: 0 auto 8px;
+  font-size: 1.95rem;
+}
+
+.paper-subtitle {
+  margin-bottom: 18px;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.paper-authors,
+.paper-affiliations {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 20px;
+}
+
+.paper-authors {
+  margin-bottom: 4px;
+  font-size: 1.02rem;
+}
+
+.paper-affiliations {
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.paper-header sup {
+  margin-left: 1px;
+  font-size: 0.68em;
+}
+
+.paper-venue {
+  margin-bottom: 22px;
+  font-weight: 700;
+  font-size: 0.98rem;
+}
+
+.paper-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.paper-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 15px 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.88rem;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.paper-links a:hover,
+.paper-links a:focus-visible {
+  border-color: var(--link);
+  color: var(--link);
+  text-decoration: none;
+}
+
+.paper-links svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.paper-section {
+  margin-top: 52px;
+}
+
+.paper-section h3 {
+  margin: 28px 0 6px;
+  font-size: 1.03rem;
+  line-height: 1.4;
+}
+
+.paper-section p {
+  line-height: 1.75;
+}
+
+.paper-figure {
+  margin: 0 0 8px;
+}
+
+.paper-figure figcaption {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.paper-section .paper-figure {
+  margin-bottom: 22px;
+}
+
+/* 16:9 frame for a single video, image or iframe */
+.paper-media {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.paper-media video,
+.paper-media img,
+.paper-media iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: contain;
+}
+
+/* Neutral stand-in for media that has not been added yet */
+.paper-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  padding: 12px;
+  background: repeating-linear-gradient(-45deg, transparent 0 10px, color-mix(in srgb, var(--line) 55%, transparent) 10px 11px);
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.paper-placeholder code {
+  font-size: 0.78rem;
+  word-break: break-all;
+}
+
+.paper-pair + .paper-pair {
+  margin-top: 14px;
+}
+
+/* Comparison row: N equal 16:9 tiles separated by hairlines */
+.paper-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--line);
+}
+
+.paper-grid .hero-panel {
+  aspect-ratio: 16 / 9;
+  border-right: 0;
+  background: var(--surface);
+}
+
+.paper-grid .hero-label {
+  left: 6px;
+  bottom: 6px;
+  padding: 1px 8px 1px 6px;
+  font-size: 0.68rem;
+}
+
+.paper-grid .hero-label::before {
+  background: var(--muted);
+}
+
+.paper-grid .paper-ours .hero-label::before {
+  background: var(--link);
+}
+
+.paper-bibtex {
+  position: relative;
+}
+
+.paper-bibtex pre {
+  margin: 0;
+  padding-right: 80px;
+}
+
+.paper-copy {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.paper-copy:hover,
+.paper-copy:focus-visible {
+  color: var(--text);
+  border-color: var(--muted);
+}
+
+@media (max-width: 650px) {
+  .paper-header h1 {
+    font-size: 1.55rem;
+  }
+
+  .paper-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .paper-placeholder {
+    font-size: 0.78rem;
+  }
+
+  .paper-placeholder code {
+    font-size: 0.7rem;
+  }
+}
